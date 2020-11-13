@@ -1,7 +1,7 @@
 package main
 
-import "github.com/yatabis/Jehanne/TaskBoard/infrastructures"
+import "github.com/yatabis/Jehanne/TaskBoard/infrastructure"
 
 func main() {
-	infrastructures.New().Run()
+	infrastructure.New().Run()
 }
