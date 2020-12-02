@@ -2,12 +2,16 @@ package usecase
 
 import (
 	"errors"
-	"github.com/yatabis/Jehanne/TaskBoard/domain"
+	"fmt"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 
 	mock "github.com/yatabis/Jehanne/TaskBoard/mock_usecase"
+
+	"github.com/yatabis/Jehanne/TaskBoard/domain"
 )
 
 func TestOpenTaskInteractor_List(t *testing.T) {
@@ -47,4 +51,169 @@ func TestOpenTaskInteractor_List(t *testing.T) {
 		}
 	})
 
+}
+
+func TestOpenTaskInteractor_Add(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepository := mock.NewMockOpenTaskRepository(ctrl)
+	interactor := &OpenTaskInteractor{
+		repository: mockRepository,
+	}
+	domain.FixedTime = time.Now()
+	now := domain.Now()
+	today := domain.Today()
+
+	t.Run("すべてのオプションを設定するテスト", func(t *testing.T) {
+		name := "タスク名"
+		category := domain.TaskCategory("カテゴリー")
+		repeating := true
+		workOn, err := domain.NewDate("2020-12-28")
+		if err != nil {
+			t.Errorf("%+v", err)
+		}
+		deadline, err := domain.NewDate("2020-12-31")
+		if err != nil {
+			t.Errorf("%+v", err)
+		}
+		status := domain.TaskStatusUnowned
+
+		options := domain.OpenTaskOptions{
+			Name:      name,
+			Category:  category,
+			Repeating: repeating,
+			WorkOn:    workOn,
+			Deadline:  deadline,
+			Status:    status,
+		}
+		set := domain.OpenTask{
+			ID:              0,
+			Name:            name,
+			Category:        category,
+			Repeating:       repeating,
+			WorkOn:          workOn,
+			Deadline:        deadline,
+			Status:          status,
+			PerformanceTime: 0,
+			CreatedAt:       now,
+			UpdatedAt:       now,
+		}
+		saved := set
+		saved.ID = 1
+		mockRepository.EXPECT().Save(&set).Return(&saved, nil)
+		result, err := interactor.Add(&options)
+		if err != nil {
+			t.Errorf("err%+v", err)
+		}
+		if result != &saved {
+			g := reflect.ValueOf(*result)
+			e := reflect.ValueOf(saved)
+			err := ""
+			for i := 0; i < g.Type().NumField(); i++ {
+				f := g.Type().Field(i).Name
+				gi := g.Field(i).Interface()
+				ei := e.Field(i).Interface()
+				if gi != ei {
+					err += fmt.Sprintf("field `%s`\nGot: %v\nWant: %v\n", f, gi, ei)
+				}
+			}
+			t.Errorf("result: %+v\nerr: %+v", result, err)
+		}
+	})
+
+	t.Run("可能な限りオプションを省略するテスト", func(t *testing.T) {
+		name := "タスク名"
+		options := domain.OpenTaskOptions{
+			Name: name,
+		}
+		set := domain.OpenTask{
+			ID:              0,
+			Name:            name,
+			Category:        "Inbox",
+			Repeating:       false,
+			WorkOn:          domain.Date{},
+			Deadline:        domain.Date{},
+			Status:          domain.TaskStatusWaiting,
+			PerformanceTime: 0,
+			CreatedAt:       now,
+			UpdatedAt:       now,
+		}
+		saved := set
+		saved.ID = 2
+		mockRepository.EXPECT().Save(&set).Return(&saved, nil)
+		result, err := interactor.Add(&options)
+		if err != nil {
+			t.Errorf("err%+v", err)
+		}
+		if result != &saved {
+			g := reflect.ValueOf(*result)
+			e := reflect.ValueOf(saved)
+			err := ""
+			for i := 0; i < g.Type().NumField(); i++ {
+				f := g.Type().Field(i).Name
+				gi := g.Field(i).Interface()
+				ei := e.Field(i).Interface()
+				if gi != ei {
+					err += fmt.Sprintf("field `%s`\nGot: %v\nWant: %v\n", f, gi, ei)
+				}
+			}
+			t.Errorf("result: %+v\nerr: %+v", result, err)
+		}
+	})
+
+	t.Run("可能な限りオプションを省略した定常タスクのテスト", func(t *testing.T) {
+		name := "タスク名"
+		repeating := true
+		options := domain.OpenTaskOptions{
+			Name:      name,
+			Repeating: repeating,
+		}
+		set := domain.OpenTask{
+			ID:              0,
+			Name:            name,
+			Category:        "Inbox",
+			Repeating:       repeating,
+			WorkOn:          today,
+			Deadline:        today,
+			Status:          domain.TaskStatusWaiting,
+			PerformanceTime: 0,
+			CreatedAt:       now,
+			UpdatedAt:       now,
+		}
+		saved := set
+		saved.ID = 3
+		mockRepository.EXPECT().Save(&set).Return(&saved, nil)
+		result, err := interactor.Add(&options)
+		if err != nil {
+			t.Errorf("err%+v", err)
+		}
+		if result != &saved {
+			g := reflect.ValueOf(*result)
+			e := reflect.ValueOf(saved)
+			err := ""
+			for i := 0; i < g.Type().NumField(); i++ {
+				f := g.Type().Field(i).Name
+				gi := g.Field(i).Interface()
+				ei := e.Field(i).Interface()
+				if gi != ei {
+					err += fmt.Sprintf("field `%s`\nGot: %v\nWant: %v\n", f, gi, ei)
+				}
+			}
+			t.Errorf("result: %+v\nerr: %+v", result, err)
+		}
+	})
+
+	t.Run("タスク名を省略するテスト", func(t *testing.T) {
+		options := domain.OpenTaskOptions{}
+		result, err := interactor.Add(&options)
+		if result != nil {
+			t.Errorf("result is expexted to be nil but got %+v\n", result)
+		}
+		expectedErr := errors.New("task name must not be empty")
+		if errors.Is(err, expectedErr) {
+			t.Errorf("err is expected to be %e but got %e\n", err, expectedErr)
+		}
+	})
+	domain.FixedTime = time.Time{}
 }

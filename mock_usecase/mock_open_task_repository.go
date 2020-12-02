@@ -47,3 +47,18 @@ func (mr *MockOpenTaskRepositoryMockRecorder) FindAll() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockOpenTaskRepository)(nil).FindAll))
 }
+
+// Save mocks base method
+func (m *MockOpenTaskRepository) Save(task *domain.OpenTask) (*domain.OpenTask, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Save", task)
+	ret0, _ := ret[0].(*domain.OpenTask)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Save indicates an expected call of Save
+func (mr *MockOpenTaskRepositoryMockRecorder) Save(task interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockOpenTaskRepository)(nil).Save), task)
+}
