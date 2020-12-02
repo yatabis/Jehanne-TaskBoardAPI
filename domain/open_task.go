@@ -1,7 +1,5 @@
 package domain
 
-import "time"
-
 type TaskStatus string
 
 const (
@@ -47,7 +45,3 @@ type OpenTaskOptions struct {
 	Deadline  Date         `json:"deadline"`
 	Status    TaskStatus   `json:"status"`
 }
-
-type Date time.Time
-type Datetime time.Time
-type Minutes time.Duration
