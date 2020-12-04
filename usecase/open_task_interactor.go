@@ -19,7 +19,7 @@ func (interactor *OpenTaskInteractor) List() ([]*domain.OpenTask, error) {
 
 func (interactor *OpenTaskInteractor) Add(options *domain.OpenTaskOptions) (*domain.OpenTask, error) {
 	if options.Name == "" {
-		return nil, errors.New("task name must not be empty")
+		return nil, TaskNameEmptyError{}
 	}
 	now := domain.Now()
 	today := domain.Today()

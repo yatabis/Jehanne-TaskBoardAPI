@@ -210,9 +210,9 @@ func TestOpenTaskInteractor_Add(t *testing.T) {
 		if result != nil {
 			t.Errorf("result is expexted to be nil but got %+v\n", result)
 		}
-		expectedErr := errors.New("task name must not be empty")
-		if errors.Is(err, expectedErr) {
-			t.Errorf("err is expected to be %e but got %e\n", err, expectedErr)
+		expectedErr := TaskNameEmptyError{}
+		if !errors.As(err, &expectedErr) {
+			t.Errorf("err is expected to be %T but got %T\n", err, expectedErr)
 		}
 	})
 	domain.FixedTime = time.Time{}
