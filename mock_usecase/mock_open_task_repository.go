@@ -48,6 +48,21 @@ func (mr *MockOpenTaskRepositoryMockRecorder) FindAll() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockOpenTaskRepository)(nil).FindAll))
 }
 
+// FindByName mocks base method
+func (m *MockOpenTaskRepository) FindByName(name string) (*domain.OpenTask, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByName", name)
+	ret0, _ := ret[0].(*domain.OpenTask)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByName indicates an expected call of FindByName
+func (mr *MockOpenTaskRepositoryMockRecorder) FindByName(name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByName", reflect.TypeOf((*MockOpenTaskRepository)(nil).FindByName), name)
+}
+
 // Save mocks base method
 func (m *MockOpenTaskRepository) Save(task *domain.OpenTask) (*domain.OpenTask, error) {
 	m.ctrl.T.Helper()

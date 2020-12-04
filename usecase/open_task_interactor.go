@@ -21,6 +21,12 @@ func (interactor *OpenTaskInteractor) Add(options *domain.OpenTaskOptions) (*dom
 	if options.Name == "" {
 		return nil, TaskNameEmptyError{}
 	}
+	_, err := interactor.repository.FindByName(options.Name)
+	if err == nil {
+		return nil, TaskNameAlreadyExistsError{name: options.Name}
+	} else if !errors.As(err, &TaskNameNotFoundError{}) {
+		return nil, err
+	}
 	now := domain.Now()
 	today := domain.Today()
 	options.Category.Init()

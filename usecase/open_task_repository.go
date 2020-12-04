@@ -6,5 +6,6 @@ import "github.com/yatabis/Jehanne/TaskBoard/domain"
 
 type OpenTaskRepository interface {
 	FindAll() ([]*domain.OpenTask, error)
+	FindByName(name string) (*domain.OpenTask, error)
 	Save(task *domain.OpenTask) (*domain.OpenTask, error)
 }
